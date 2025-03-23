@@ -1,0 +1,43 @@
+import netCDF4 as nc
+import numpy as np
+import matplotlib.pyplot as plt
+# Path to the NetCDF file
+file_path = 'F:\Granules jan 02- dec 31\MOD04_3K_6.1-20241126_162408\MOD04_3K.A2023002.0430.061.2023002134613.hdf'
+
+dataset = nc.Dataset(file_path, 'r')
+
+# Extract latitude, longitude, and Deep_Blue_Aerosol_Optical_Depth_550_Land_STD
+latitude = dataset.variables['Latitude'][:]  # Replace with correct variable name if needed
+longitude = dataset.variables['Longitude'][:]
+aod_std = dataset.variables['Optical_Depth_Land_And_Ocean'][:]
+
+# Store the data in a dictionary for easy access or further processing
+data = {
+    "latitude": latitude,
+    "longitude": longitude,
+    "aod_std": aod_std,
+}
+
+# Check the extracted data
+print("Latitude shape:", latitude.shape)
+print("Longitude shape:", longitude.shape)
+print("AOD STD shape:", aod_std.shape)
+
+# Close the dataset
+dataset.close()
+
+# Save the data to a file (e.g., .npy for numpy format)
+output_path = 'extracted_data.npy'
+np.save(output_path, data)
+print(f"Data saved to {output_path}")
+
+plt.figure(figsize=(10, 6))
+#plt.pcolormesh(longitude, latitude, longitude, shading='auto', cmap='viridis')
+#plt.pcolormesh(longitude, latitude, latitude, shading='auto', cmap='viridis')
+plt.pcolormesh(longitude, latitude, aod_std, shading='auto', cmap='viridis')
+plt.colorbar(label='Deep Blue AOD STD')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+#plt.title('latitude')
+plt.title('Deep Blue AOD 550 Land STD')
+plt.show()
