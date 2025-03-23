@@ -1,0 +1,10 @@
+import matplotlib.pyplot as plt
+
+x=[6,8]
+y=[5,9]
+
+plt.plot(x,y, color='none', linestyle='dashed', linewidth=2, marker='o', markersize=6, 
+         markerfacecolor='blue', markeredgecolor='blue')
+
+plt.grid()
+plt.show()
