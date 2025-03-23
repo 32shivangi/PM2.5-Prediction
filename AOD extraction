@@ -1,0 +1,49 @@
+from netCDF4 import Dataset
+import numpy as np
+
+def findClosest(arr, target):
+    """Find the index of the closest value to the target in a 1D array."""
+    arr = np.asarray(arr)
+    idx = (np.abs(arr - target)).argmin()
+    return idx, arr[idx]
+
+# File path
+file_path = "D:\Major Project\Data\MOD04_L2.A2023001.0530.061.2023001180257.hdf"
+
+# Open NetCDF file
+nc = Dataset(file_path, 'r')
+
+# Extract longitude and latitude variables
+lon = nc.variables['Longitude'][:]
+lat = nc.variables['Latitude'][:]
+AOD = nc.variables['Deep_Blue_Aerosol_Optical_Depth_550_Land'][:]
+
+target_lon = 78.0139
+target_lat = 27.1751
+
+y_indices = []
+x_indices = []
+closest_lon_values = []
+closest_lat_values = []
+
+for i in range(lon.shape[0]):  # Loop over latitude dimension
+    closest_x_index, closest_x_value = findClosest(lon[i, :], target_lon)
+    closest_y_index, closest_y_value = findClosest(lat[i, :], target_lat)
+    
+    y_indices.append(closest_y_index)
+    x_indices.append(closest_x_index)
+    closest_lon_values.append(closest_x_value)
+    closest_lat_values.append(closest_y_value)
+
+# Find the closest value in the stored closest values list
+final_lon_index, final_lon_value = findClosest(closest_lon_values, target_lon)
+final_lat_index, final_lat_value = findClosest(closest_lat_values, target_lat)
+aod_value = AOD[y_indices[final_lat_index], x_indices[final_lon_index]]
+
+
+# Print the final indices and corresponding stored indices
+print(f"Final Lon Index: {final_lon_index}, Corresponding Stored Lon Index: {x_indices[final_lon_index]}, Target_lon:{target_lon}")
+print(f"Final Lat Index: {final_lat_index}, Corresponding Stored Lat Index: {y_indices[final_lat_index]}, Target_lat:{target_lat}")
+print(f"AOD Value at Closest Location: {aod_value}")
+
+nc.close()
