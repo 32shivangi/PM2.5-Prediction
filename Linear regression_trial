@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# Example AOD values
+aod_values = [0.49800002365373075, 0.3960000188089907, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+# Corresponding PM2.5 values
+pm25_values = [997.38, 997.55, 997.5, 997.58, 997.7, 997.84, 997.84, 998.05, 997.84,
+               997.64, 997.44, 997.41, 997.09, 996.98, 996.97, 997.03, 997.35, 997.75,
+               997.46, 997.06, 997.44, 997.25, 997.25, 996.83, 996.85, 997.01, 997.12,
+               997.06, 997.0, 997.41, 997.57]
+
+# Convert to numpy arrays
+X = np.array(pm25_values).reshape(-1, 1)
+y = np.array(aod_values)
+
+# Fit linear regression
+model = LinearRegression()
+model.fit(X, y)
+y_pred = model.predict(X)
+
+# Get regression parameters
+slope = model.coef_[0]
+intercept = model.intercept_
+r2 = r2_score(y, y_pred)
+
+# Plotting
+plt.figure(figsize=(8, 5))
+plt.scatter(pm25_values, aod_values, color='blue', label='Data Points')
+plt.plot(pm25_values, y_pred, color='red', label=f'Fit: AOD = {slope:.4f}×PM + {intercept:.4f}\nR² = {r2:.4f}')
+
+plt.title("AOD vs PM2.5 with Linear Fit")
+plt.xlabel("PM2.5 (µg/m³)")
+plt.ylabel("AOD (550 nm)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
