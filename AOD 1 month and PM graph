@@ -1,0 +1,82 @@
+from netCDF4 import Dataset
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+
+def findClosest(arr, target):
+    arr = np.asarray(arr)
+    idx = (np.abs(arr - target)).argmin()
+    return idx, arr[idx]
+
+folder_path = r"E:\Jan month data\MOD04_L2_6.1-20250418_143227"
+target_lon = 77.9983
+target_lat = 27.1964
+
+# Store all AOD values
+aod_values = []
+
+for filename in sorted(os.listdir(folder_path)):  # sort to match PM2.5 order
+    if filename.endswith(".hdf"):
+        file_path = os.path.join(folder_path, filename)
+        print(f"Reading: {file_path}")
+        
+        try:
+            nc = Dataset(file_path, 'r')
+
+            lon = nc.variables['Longitude'][:]
+            lat = nc.variables['Latitude'][:]
+            AOD = nc.variables['Deep_Blue_Aerosol_Optical_Depth_550_Land'][:]
+
+            y_indices = []
+            x_indices = []
+            closest_lon_values = []
+            closest_lat_values = []
+
+            for i in range(lon.shape[0]):
+                x_idx, x_val = findClosest(lon[i, :], target_lon)
+                y_idx, y_val = findClosest(lat[i, :], target_lat)
+
+                y_indices.append(y_idx)
+                x_indices.append(x_idx)
+                closest_lon_values.append(x_val)
+                closest_lat_values.append(y_val)
+
+            final_lon_idx, _ = findClosest(closest_lon_values, target_lon)
+            final_lat_idx, _ = findClosest(closest_lat_values, target_lat)
+
+            row = y_indices[final_lat_idx]
+            col = x_indices[final_lon_idx]
+            aod_value = AOD[row, col]
+            print(f"AOD Value at Closest Location: {aod_value}")
+            aod_values.append(aod_value)
+
+            nc.close()
+
+        except Exception as e:
+            print(f"Error in {filename}: {e}")
+
+# Convert to array
+aod_values_array = np.array(aod_values)
+
+print("\nAll extracted AOD values:", aod_values_array)
+
+# PM2.5 values
+pm25_values = [997.38, 997.55, 997.5, 997.58, 997.7, 997.84, 997.84, 998.05, 997.84,
+997.64, 997.44, 997.41, 997.09, 996.98, 996.97, 997.03, 997.35, 997.75,
+997.46, 997.06, 997.44, 997.25, 997.25, 996.83, 996.85, 997.01, 997.12,
+997.06, 997.0, 997.41, 997.57]
+
+# Ensure size match
+if len(pm25_values) != len(aod_values_array):
+    print(f"\n❌ Size mismatch! PM2.5: {len(pm25_values)}, AOD: {len(aod_values_array)}")
+else:
+    # Plotting
+    plt.figure(figsize=(8, 5))
+    plt.scatter(pm25_values, aod_values_array, color='blue', marker='o', s=80)
+
+    plt.title("AOD vs PM2.5")
+    plt.xlabel("PM2.5 (µg/m³)")
+    plt.ylabel("AOD (550 nm)")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
