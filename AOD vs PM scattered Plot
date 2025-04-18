@@ -1,0 +1,22 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Example AOD values
+aod_values = [0.49800002365373075, 0.3960000188089907]
+
+# Corresponding PM2.5 values (make sure they match in count!)
+pm25_values = [997.38, 997.55, 997.5, 997.58, 997.7, 997.84, 997.84, 998.05, 997.84,
+997.64, 997.44, 997.41, 997.09, 996.98, 996.97, 997.03, 997.35, 997.75,
+997.46, 997.06, 997.44, 997.25, 997.25, 996.83, 996.85, 997.01, 997.12,
+997.06, 997.0, 997.41, 997.57]
+
+# Plotting
+plt.figure(figsize=(8, 5))
+plt.scatter(aod_values, pm25_values, color='blue', marker='o', s=80)
+
+plt.title(" AOD vs PM2.5 ")
+plt.xlabel("PM2.5 (µg/m³)")
+plt.ylabel("AOD (550 nm)")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
